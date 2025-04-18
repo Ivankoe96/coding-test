@@ -22,7 +22,7 @@ def get_data():
     """
     Returns dummy data (e.g., list of users).
     """
-    return DUMMY_DATA
+    return DUMMY_DATA.get("salesReps", [])
 
 @app.post("/api/ai")
 async def ai_endpoint(request: Request):
