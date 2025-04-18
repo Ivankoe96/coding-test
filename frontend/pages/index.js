@@ -9,7 +9,7 @@ export default function Home() {
 
   useEffect(() => {
     // Updated fetch URL to the correct backend endpoint
-    fetch("/api/sales-reps")
+    fetch("http://localhost:8000/api/sales-reps")
       .then((res) => {
         if (!res.ok) { // Basic error handling for HTTP status codes
           throw new Error(`HTTP error! status: ${res.status}`);
