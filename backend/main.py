@@ -87,39 +87,123 @@ def get_data():
 @app.post("/api/ai")
 async def ai_endpoint(request: Request):
     """
-    Accepts a user question and returns a response using the Gemini API (if configured).
+    Accepts a user question and returns a data-aware or general response using the Gemini API (if configured).
+    (Enhanced to handle both data-specific and general questions)
     """
+    print("\n--- AI Endpoint Called (Data-Aware + General) ---") # Add this line
+
     body = await request.json()
     user_question = body.get("question", "")
+
+    print(f"Received question: '{user_question}'") # Add this line
 
     # Check if the Gemini client was configured successfully
     if not genai_client_configured:
         print("AI endpoint called but client not configured.")
+        print("--- End AI Endpoint ---") # Add this line
         return {"answer": "AI service is currently unavailable (API key missing or configuration failed)."}
 
     if not user_question:
+         print("No question provided.") # Add this line
+         print("--- End AI Endpoint ---") # Add this line
          return {"answer": "Please provide a question."}
 
+    # --- Data Retrieval Logic (Basic Keyword Matching) ---
+    context_data = []
+    user_question_lower = user_question.lower()
+
+    # Search through sales representatives and their deals/clients
+    for rep in DUMMY_DATA.get("salesReps", []):
+        rep_name_lower = rep.get("name", "").lower()
+        rep_role_lower = rep.get("role", "").lower()
+        rep_region_lower = rep.get("region", "").lower()
+
+        # Check if rep name, role, or region is in the question
+        if rep_name_lower in user_question_lower or \
+           rep_role_lower in user_question_lower or \
+           rep_region_lower in user_question_lower:
+            # If a sales rep is mentioned, add their relevant details to context
+            # Avoid adding the entire representative object multiple times if they appear in multiple matches
+            if rep not in context_data:
+                 context_data.append(rep)
+
+        # Also check if any client names mentioned in deals are in the question
+        for deal in rep.get("deals", []):
+             deal_client_lower = deal.get("client", "").lower()
+             deal_status_lower = deal.get("status", "").lower() # Might also check status keywords
+             if deal_client_lower in user_question_lower:
+                  # If a client is mentioned in a deal, add that specific deal and the rep info
+                  deal_context = {"deal": deal, "salesRepName": rep.get("name")} # Include rep name with deal
+                  if deal_context not in context_data:
+                      context_data.append(deal_context)
+                  # Also make sure the rep is added if not already
+                  if rep not in context_data:
+                       context_data.append(rep)
+
+
+    # --- Conditional Prompt Augmentation ---
+    # Decide whether to include data context based on if anything was found
+    if context_data:
+        # If relevant data was found, format it and build a data-aware prompt
+        context_string = json.dumps(context_data, indent=2) # Convert found data to JSON string
+
+        system_instruction = (
+            "You are an AI assistant knowledgeable about sales data. "
+            "Answer the user's question based ONLY on the following sales data context if possible. "
+            "If the question cannot be answered from the data provided, state that you cannot find relevant information in the provided data. "
+            "Do not use outside knowledge to answer questions about the specific sales data."
+        )
+
+        augmented_prompt = f"{system_instruction}\n\nSales Data Context:\n{context_string}\n\nUser Question: {user_question}\n\nAnswer:"
+        print(f"--- Relevant data found. Sending data-aware prompt ---") # Add this line
+        print(f"Augmented Prompt (partial):\n{augmented_prompt[:500]}...") # Print start of prompt for debugging
+
+    else:
+        # If NO relevant data was found, send only the user's question as a general prompt
+        augmented_prompt = user_question
+        print(f"--- No relevant data found. Sending general prompt ---") # Add this line
+        print(f"General Prompt: {augmented_prompt}") # Print the prompt
+
+
+    # --- Call the Gemini API with the Augmented/General Prompt ---
     try:
-        # Call the Gemini API
-        # This sends the user's question directly to the LLM.
-        # For a more advanced bonus (RAG), you would add context from DUMMY_DATA
-        # related to the user_question before sending the prompt to the LLM.
-        print(f"Sending question to Gemini: {user_question}")
-        response = generation_model.generate_content(user_question)
+        # Send the chosen prompt (either data-aware or general)
+        response = generation_model.generate_content(augmented_prompt)
+        print("Successfully received response from Gemini.") # Add this line
 
         # Access the generated text from the response.
-        # The recommended way is response.text. Be aware this can raise an exception
-        # if the model doesn't return text or has safety issues.
-        ai_answer = response.text
-        print("Received response from Gemini.")
+        # Handle potential cases where the model might not return text
+        if response and response.text:
+             ai_answer = response.text
+        else:
+             # Handle cases where the model didn't generate text (e.g., blocked for safety)
+             print("Gemini did not return text response.")
+             ai_answer = "The AI did not return a valid text response."
+             if response.candidates:
+                 for candidate in response.candidates:
+                     if candidate.finish_reason:
+                         ai_answer += f" Finish reason: {candidate.finish_reason}."
+                     if candidate.safety_ratings:
+                          ai_answer += " Safety ratings present." # Check details if needed
+
+
+        print(f"Gemini response text (partial): {ai_answer[:200]}...") # Print start of answer
+        print("--- End AI Endpoint ---") # Add this line
+
 
         return {"answer": ai_answer}
 
     except Exception as e:
-        print(f"\nError calling Gemini API: {e}\n")
+        print(f"\n--- Error calling Gemini API ---") # Add this line
+        print(f"Exception details: {e}")          # Print the exception 'e'
+        print("--- End AI Endpoint ---") # Add this line
         # Return a user-friendly error message to the frontend
         return {"answer": f"Error getting response from AI: {e}"}
+
+# Add flush at the end for debugging prints
+import sys
+sys.stdout.flush()
+sys.stderr.flush()
 
 
 # Existing if __name__ == "__main__": block
