@@ -9,3 +9,6 @@ node_modules/
 
 # Ignore Next.js build output
 frontend/.next/
+
+# Ignore Python bytecode files
+.env
