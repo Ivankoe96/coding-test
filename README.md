@@ -152,3 +152,148 @@ Using these free or trial options can help you add an AI chatbot or similar func
 ---
 
 **Good luck, and have fun building your Sales Dashboard!**
+
+
+# InterOpera Coding Test Solution - Ivan Koe
+
+## Project Description
+
+This project is a solution to the InterOpera coding test. It consists of a backend API built with FastAPI (Python) and a frontend application built with Next.js (React). The application displays sales performance data for representatives and includes an optional AI endpoint feature integrated with the Google Gemini API.
+
+## Features Implemented
+
+* **Required:**
+    * Backend API (`/api/sales-reps`) serving sales data from `dummyData.json`.
+    * Frontend display of sales representatives.
+    * Display of nested deal information for each representative.
+    * Display of the sales representative's **Region** on the frontend.
+
+* **Optional AI Bonus:**
+    * Backend API endpoint (`/api/ai`) that accepts a user question via POST request.
+    * Integration with the **Google Gemini API** to generate responses.
+    * **Data-Aware AI:** The AI attempts to answer questions based on the `dummyData.json` content (basic RAG implementation via keyword matching and prompt augmentation). If the question is not related to the data, it answers using its general knowledge.
+
+
+## Design Notes and Choices
+
+* **Overall Layout:** The layout is a simple top-down flow with sales data above and the AI interaction section below.
+* **Data Display:** Sales representatives are displayed in a grid layout for easy viewing. Nested deals for each rep are listed clearly below their name. The representative's region from the `dummyData.json` was also included.
+* **Basic UI:** The UI uses clear headings and distinct sections for intuitive navigation.
+
+## Technologies Used
+
+* **Backend:**
+    * Python
+    * FastAPI
+    * Uvicorn
+    * `python-dotenv`
+    * `google-genai`
+* **Frontend:**
+    * Node.js
+    * npm
+    * React
+    * Next.js
+
+## Setup and Installation
+
+Follow these steps to get the project running locally:
+
+1.  **Clone the Repository:**
+    ```bash
+    git clone https://github.com/Ivankoe96/coding-test
+    cd coding-test
+    ```
+   
+
+2.  **Google Gemini API Key:**
+    * Obtain a Google Gemini API key from [Google AI Studio](https://aistudio.google.com/).
+    * Create a file named `.env` in the **root directory** of the cloned `coding-test` project folder.
+    * Add the following line to the `.env` file, replacing `YOUR_API_KEY_HERE` with your actual Gemini API key:
+        ```env
+        GEMINI_API_KEY=YOUR_API_KEY_HERE
+        ```
+    * *(Note: The `.env` file is ignored by Git for security)*
+
+3.  **Backend Setup:**
+    * Open a terminal window and navigate to the `backend` directory:
+        ```bash
+        cd backend
+        ```
+    * (Windows) Create a Python Virtual Environment:
+        ```bash
+        python -m venv .venv
+        ```
+    * (macOS/Linux) Create a Python Virtual Environment:
+        ```bash
+        python3 -m venv .venv
+        ```
+    * (Windows) Activate the virtual environment:
+        ```bash
+        .venv\Scripts\activate
+        ```
+    * (macOS/Linux) Activate the virtual environment:
+        ```bash
+        source .venv/bin/activate
+        ```
+    * Install backend dependencies **(ensure your virtual environment is activated)**:
+        ```bash
+        pip install -r requirements.txt
+        ```
+    * *(Note: The virtual environment needs to be activated for backend commands like `uvicorn`)*
+
+4.  **Frontend Setup:**
+    * Open a **new** terminal window and navigate to the `frontend` directory:
+        ```bash
+        cd ../frontend
+        ```
+    * Ensure Node.js and npm are installed and in your system's PATH. (Check with `node -v` and `npm -v` in a new terminal). If not installed, download from [nodejs.org](https://nodejs.org/).
+    * Install frontend dependencies:
+        ```bash
+        npm install
+        ```
+
+## How to Run the Application
+
+1.  **Start the Backend Server:**
+    * Open a terminal window and navigate to the `backend` directory.
+    * Activate the virtual environment (e.g., `.venv\Scripts\activate` on Windows).
+    * Run the server:
+        ```bash
+        uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+        ```
+    * Keep this terminal open.
+
+2.  **Start the Frontend Server:**
+    * Open a **new** terminal window and navigate to the `frontend` directory.
+    * Run the development server:
+        ```bash
+        npm run dev
+        ```
+    * Keep this terminal open.
+
+3.  **Access the Application:**
+    * Open your web browser and go to `http://localhost:3000`.
+
+## How to Use the Application
+
+* The top section displays the sales representative data fetched from the backend API.  Each representative's deals and region are shown.
+* The bottom section ("Ask a Question (AI Endpoint)") allows you to interact with the AI:
+    * Type questions about the sales data (e.g., "What are Alice's deals?", "Which rep is in Europe?") and the AI will attempt to answer based on the provided `dummyData.json` context.
+    * You can also ask general knowledge questions, and the AI will answer using its base knowledge.
+
+## Challenges and Learnings (Windows Environment Specific)
+
+* Troubleshooting the `npm` or `node` command not being recognized on Windows required repairing the Node.js installation to correctly add it to the system's PATH.
+* The `npx tailwindcss init -p` command failed repeatedly, indicating an issue with the executable script creation in `.bin` on Windows. The solution was to manually create `tailwind.config.js` and `postcss.config.js`.
+* Accidentally overwriting the `frontend/package.json` file highlighted the importance of careful file management and version control.
+* Using `cd /d` is necessary on Windows to change drives in Command Prompt.
+
+## Future Improvements
+* Tailwindcss is not properly installed and used.
+* Apply more comprehensive Tailwind styling for better visual appeal and responsiveness.
+* Implement a more sophisticated data retrieval system for the AI (e.g., using embeddings/vector search).
+* Add more robust error handling and user feedback.
+* Add backend unit tests.
+* Explore deployment strategies.
+
+---
