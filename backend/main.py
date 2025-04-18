@@ -5,11 +5,19 @@ import json
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Allows your frontend origin
+    allow_credentials=True,
+    allow_methods=["GET"],  # Allows GET requests from this origin
+    allow_headers=["*"],  # Allows all headers (you can be more specific if needed)
+)
+
 # Load dummy data
-with open("dummyData.json", "r") as f:
+with open("../dummyData.json", "r") as f:
     DUMMY_DATA = json.load(f)
 
-@app.get("/api/data")
+@app.get("/api/sales-reps")
 def get_data():
     """
     Returns dummy data (e.g., list of users).

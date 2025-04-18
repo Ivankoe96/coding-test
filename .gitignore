@@ -6,3 +6,6 @@
 
 # Ignore frontend dependencies
 node_modules/
+
+# Ignore Next.js build output
+frontend/.next/
