@@ -59,6 +59,7 @@ export default function Home() {
             {salesReps.map((rep) => ( // Map over salesReps state
               <div key={rep.id} style={{ border: '1px solid #ccc', padding: '1rem', borderRadius: '8px', backgroundColor: '#f9f9f9' }}> {/* Styled container for each rep */}
                 <h3>{rep.name} ({rep.role})</h3> {/* Display rep name and role */}
+                <p>Region: {rep.region}</p> {/* Display rep region */}
                 {rep.deals && rep.deals.length > 0 ? ( // Check if deals exist and have items
                   <div> {/* Container for deals list */}
                     <h4>Deals:</h4>
