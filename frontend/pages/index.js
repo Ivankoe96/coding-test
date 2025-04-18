@@ -31,7 +31,7 @@ export default function Home() {
 
   const handleAskQuestion = async () => {
     try {
-      const response = await fetch("/api/ai", { // Using relative path for AI endpoint too
+      const response = await fetch("http://localhost:8000/api/ai", { // Using relative path for AI endpoint too
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
