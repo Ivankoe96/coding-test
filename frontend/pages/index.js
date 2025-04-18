@@ -19,7 +19,7 @@ export default function Home() {
       .then((data) => {
         // Adjusted data access to get the salesReps array
         // Assuming dummyData.json is { "salesReps": [...] }
-        setSalesReps(data.salesReps || []);
+        setSalesReps(data || []); // Set state directly with the received array, or empty array if data is null/undefined
         setLoading(false);
       })
       .catch((err) => {
